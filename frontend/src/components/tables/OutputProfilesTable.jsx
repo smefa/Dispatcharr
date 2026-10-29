@@ -8,15 +8,18 @@ import {
   Box,
   Button,
   Center,
+  CopyButton,
   Flex,
   Paper,
+  Select,
   Stack,
   Switch,
   Text,
+  TextInput,
   Tooltip,
   useMantineTheme,
 } from '@mantine/core';
-import { Eye, EyeOff, SquareMinus, SquarePen, SquarePlus } from 'lucide-react';
+import { Check, Copy, Eye, EyeOff, SquareMinus, SquarePen, SquarePlus } from 'lucide-react';
 import { CustomTable, useTable } from './CustomTable';
 import useBrowserStorage from '../../hooks/useBrowserStorage';
 import {
@@ -59,6 +62,7 @@ const OutputProfiles = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [profileToDelete, setProfileToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const [xcProfileId, setXcProfileId] = useState(null);
 
   const outputProfiles = useOutputProfilesStore((state) => state.profiles);
   const isWarningSuppressed = useWarningsStore((s) => s.isWarningSuppressed);
@@ -181,6 +185,11 @@ const OutputProfiles = () => {
     setProfileModalOpen(false);
   };
 
+  const xcProfile = outputProfiles.find((p) => String(p.id) === xcProfileId);
+  const xcUrl = xcProfile
+    ? `${window.location.origin}/output_profile/${encodeURIComponent(xcProfile.name)}`
+    : '';
+
   const toggleHideInactive = () => setHideInactive((v) => !v);
 
   const toggleProfileIsActive = async (profile) => {
@@ -272,6 +281,44 @@ const OutputProfiles = () => {
           </Flex>
         </Box>
       </Paper>
+
+      <Flex gap="sm" align="flex-end" p={10}>
+        <Select
+          label="Xtream Codes profile"
+          description="Pick a profile to get an Xtream Codes server URL that always uses it"
+          placeholder="Select an output profile"
+          size="xs"
+          data={outputProfiles
+            .filter((p) => p.is_active)
+            .map((p) => ({ value: String(p.id), label: p.name }))}
+          value={xcProfileId}
+          onChange={setXcProfileId}
+          clearable
+          style={{ minWidth: 220 }}
+        />
+        <TextInput
+          label="Server URL"
+          size="xs"
+          readOnly
+          value={xcUrl}
+          placeholder="Select a profile"
+          style={{ flex: 1 }}
+          rightSection={
+            <CopyButton value={xcUrl}>
+              {({ copied, copy }) => (
+                <ActionIcon
+                  variant="subtle"
+                  size="sm"
+                  disabled={!xcUrl}
+                  onClick={copy}
+                >
+                  {copied ? <Check size={14} /> : <Copy size={14} />}
+                </ActionIcon>
+              )}
+            </CopyButton>
+          }
+        />
+      </Flex>
 
       <Box style={{ display: 'flex', flexDirection: 'column' }}>
         <Box

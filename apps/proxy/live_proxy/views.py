@@ -340,10 +340,9 @@ def _resolve_output_profile(request, user):
     from core.models import OutputProfile
     param = request.GET.get('output_profile')
     if param:
-        try:
-            return OutputProfile.objects.get(id=int(param), is_active=True)
-        except (OutputProfile.DoesNotExist, ValueError, TypeError):
-            return None
+        # Accept a numeric id or a profile name (e.g. /output_profile/low/).
+        lookup = {'id': int(param)} if param.isdigit() else {'name__iexact': param}
+        return OutputProfile.objects.filter(is_active=True, **lookup).first()
     if user:
         custom = getattr(user, 'custom_properties', None) or {}
         profile_id = custom.get('output_profile')
