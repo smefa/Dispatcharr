@@ -21,6 +21,7 @@ export const schema = Yup.object({
   name: Yup.string().required('Name is required'),
   command: Yup.string().required('Command is required'),
   parameters: Yup.string(),
+  xc_path: Yup.string().matches(/^[A-Za-z0-9_-]*$/, 'Letters, digits, - and _ only'),
 });
 
 export const addOutputProfile = (values) => {

@@ -9,6 +9,7 @@ from shlex import split as shlex_split
 from django.conf import settings
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
+from django.core.validators import RegexValidator
 from django.db import models
 from django.utils.text import slugify
 from django_redis.exceptions import ConnectionInterrupted
@@ -203,6 +204,22 @@ class OutputProfile(models.Model):
     is_active = models.BooleanField(
         default=True, help_text="Whether this profile is available for use"
     )
+    xc_path = models.CharField(
+        max_length=64,
+        blank=True,
+        default="",
+        validators=[RegexValidator(r"^[A-Za-z0-9_-]+$", "Letters, digits, - and _ only.")],
+        help_text="Xtream Codes URL ending (http://host:port/<xc_path>). Empty = off.",
+    )
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=["xc_path"],
+                condition=~models.Q(xc_path=""),
+                name="unique_output_profile_xc_path",
+            )
+        ]
 
     def __str__(self):
         return self.name
