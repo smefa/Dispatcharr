@@ -5,6 +5,8 @@ on:
     branches:
       - main
       - dev
+      - claude/serene-darwin-5bi5ca
+  workflow_dispatch:
 
 jobs:
   build-and-push:
@@ -36,6 +38,9 @@ jobs:
           elif [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             echo "TAG=dev" >> $GITHUB_ENV
             echo "BRANCH=dev" >> $GITHUB_ENV
+          else
+            echo "TAG=output-profile-pill" >> $GITHUB_ENV
+            echo "BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
           fi
 
       - name: Convert repository name to lowercase
