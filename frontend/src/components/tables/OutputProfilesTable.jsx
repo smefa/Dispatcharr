@@ -13,7 +13,6 @@ import {
   Stack,
   Switch,
   Text,
-  TextInput,
   Tooltip,
   useMantineTheme,
 } from '@mantine/core';
@@ -288,24 +287,6 @@ const OutputProfiles = () => {
           </div>
         </Box>
       </Box>
-
-      <Stack gap="xs" p={10}>
-        <Text size="sm" fw={500}>
-          Xtream Codes server URLs
-        </Text>
-        {outputProfiles
-          .filter((p) => p.is_active)
-          .map((p) => (
-            <TextInput
-              key={p.id}
-              label={p.name}
-              size="xs"
-              readOnly
-              value={`${window.location.origin}/${encodeURIComponent(p.name)}`}
-              onFocus={(e) => e.target.select()}
-            />
-          ))}
-      </Stack>
 
       <OutputProfileForm
         profile={profile}

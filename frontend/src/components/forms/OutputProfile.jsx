@@ -28,6 +28,7 @@ const OutputProfile = ({ profile = null, isOpen, onClose }) => {
       command: profile?.command || 'ffmpeg',
       parameters: profile?.parameters || '',
       is_active: profile?.is_active ?? true,
+      xc_path: profile?.xc_path || '',
     }),
     [profile]
   );
@@ -129,6 +130,21 @@ const OutputProfile = ({ profile = null, isOpen, onClose }) => {
             disabled={isLocked}
             {...register('parameters')}
             error={errors.parameters?.message}
+          />
+
+          <TextInput
+            label="Xtream Codes URL ending"
+            description={
+              <>
+                Off when empty. Set e.g. <code>low</code> and use{' '}
+                <code>{window.location.origin}/low</code> as the Xtream Codes
+                server URL in your app to always get this profile.
+              </>
+            }
+            placeholder="low"
+            disabled={isLocked}
+            {...register('xc_path')}
+            error={errors.xc_path?.message}
           />
 
           <Checkbox
