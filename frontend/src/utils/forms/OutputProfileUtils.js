@@ -21,6 +21,14 @@ export const schema = Yup.object({
   name: Yup.string().required('Name is required'),
   command: Yup.string().required('Command is required'),
   parameters: Yup.string(),
+  xc_path: Yup.string()
+    .max(64, 'Use at most 64 characters')
+    .matches(/^[A-Za-z0-9_-]*$/, 'Letters, digits, - and _ only')
+    .test(
+      'not-numeric',
+      'Digits-only endings are reserved for profile IDs',
+      (value) => !value || !/^[0-9]+$/.test(value)
+    ),
 });
 
 export const addOutputProfile = (values) => {

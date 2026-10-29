@@ -37,6 +37,15 @@ Replay recent programs from Xtream Codes providers that advertise archives. Catc
 🔧 **Transcode & Optimize Streams**\
 Configure output profiles with FFmpeg transcoding to optimize streams for different clients (reduce bandwidth, standardize formats, or add audio normalization).
 
+For Xtream Codes live TV, set an active output profile's **Xtream Codes URL ending**
+to e.g. `low`, then use `http://host:port/low` as your client's server URL with your
+usual XC credentials. Aliases are unique and case-sensitive, use up to 64 ASCII
+letters, digits, `-` or `_`, and cannot be digits only (numeric values select profile
+IDs). Leave the ending empty to disable the alias. The prefix takes precedence over
+an `output_profile` query parameter or per-user default; normal XC authentication
+and channel permissions still apply. VOD and catch-up are not transcoded by output
+profiles. Clients must preserve the server URL prefix when requesting live streams.
+
 🔐 **Centralize VPN Access**\
 Run Dispatcharr through a VPN container (like Gluetun) so all streams route through a single VPN connection. Your clients access geo-blocked content without needing individual VPNs, reducing bandwidth overhead and simplifying network management.
 

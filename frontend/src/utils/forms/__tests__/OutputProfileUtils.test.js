@@ -89,6 +89,24 @@ describe('OutputProfileUtils', () => {
   // ── schema ─────────────────────────────────────────────────────────────────
 
   describe('schema', () => {
+    it.each(['', 'low', 'LOW', '720p-copy', 'low_720', 'a'.repeat(64)])(
+      'accepts the XC alias %s',
+      async (xc_path) => {
+        await expect(
+          schema.validate({ name: 'HD', command: 'ffmpeg', xc_path })
+        ).resolves.toMatchObject({ xc_path });
+      }
+    );
+
+    it.each(['2525', '0', 'a'.repeat(65), 'bad/path', 'bad alias', 'bad\n'])(
+      'rejects the XC alias %s',
+      async (xc_path) => {
+        await expect(
+          schema.validate({ name: 'HD', command: 'ffmpeg', xc_path })
+        ).rejects.toThrow();
+      }
+    );
+
     it('validates a fully populated object', async () => {
       await expect(
         schema.validate({

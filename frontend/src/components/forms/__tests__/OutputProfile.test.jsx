@@ -243,6 +243,33 @@ describe('OutputProfile', () => {
   // ── Form fields ────────────────────────────────────────────────────────────
 
   describe('form fields', () => {
+    it('edits and submits the XC alias with a 64-character input limit', async () => {
+      render(
+        <OutputProfile
+          {...defaultProps({ profile: makeProfile({ xc_path: 'low' }) })}
+        />
+      );
+      const input = screen.getByLabelText('Xtream Codes URL ending');
+      expect(input).toHaveValue('low');
+      expect(input).toHaveAttribute('maxlength', '64');
+      fireEvent.change(input, { target: { value: 'low_720' } });
+      fireEvent.click(screen.getByText('Save'));
+      await waitFor(() => {
+        expect(OutputProfileUtils.updateOutputProfile).toHaveBeenCalledWith(
+          expect.objectContaining({ xc_path: 'low_720' })
+        );
+      });
+    });
+
+    it('disables the XC alias for locked profiles', () => {
+      render(
+        <OutputProfile
+          {...defaultProps({ profile: makeProfile({ locked: true }) })}
+        />
+      );
+      expect(screen.getByLabelText('Xtream Codes URL ending')).toBeDisabled();
+    });
+
     it('renders the Name input', () => {
       render(<OutputProfile {...defaultProps()} />);
       expect(screen.getByTestId('input-name')).toBeInTheDocument();

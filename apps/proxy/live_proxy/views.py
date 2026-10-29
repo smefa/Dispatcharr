@@ -340,10 +340,16 @@ def _resolve_output_profile(request, user):
     from core.models import OutputProfile
     param = request.GET.get('output_profile')
     if param:
-        try:
-            return OutputProfile.objects.get(id=int(param), is_active=True)
-        except (OutputProfile.DoesNotExist, ValueError, TypeError):
-            return None
+        if param.isdecimal():
+            # Bound conversion before int() and stay within signed bigint IDs.
+            digits = param.lstrip('0')
+            if len(digits) > 19 or int(digits or '0') > 9223372036854775807:
+                logger.warning("Ignoring out-of-range output profile ID")
+                return None
+            lookup = {'id': int(digits or '0')}
+        else:
+            lookup = {'xc_path': param}
+        return OutputProfile.objects.filter(is_active=True, **lookup).first()
     if user:
         custom = getattr(user, 'custom_properties', None) or {}
         profile_id = custom.get('output_profile')

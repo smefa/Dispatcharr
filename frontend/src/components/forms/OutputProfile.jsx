@@ -28,6 +28,7 @@ const OutputProfile = ({ profile = null, isOpen, onClose }) => {
       command: profile?.command || 'ffmpeg',
       parameters: profile?.parameters || '',
       is_active: profile?.is_active ?? true,
+      xc_path: profile?.xc_path || '',
     }),
     [profile]
   );
@@ -129,6 +130,24 @@ const OutputProfile = ({ profile = null, isOpen, onClose }) => {
             disabled={isLocked}
             {...register('parameters')}
             error={errors.parameters?.message}
+          />
+
+          <TextInput
+            label="Xtream Codes URL ending"
+            description={
+              <>
+                Case-sensitive, up to 64 letters, digits, - or _; not digits
+                only. Off when empty. Set e.g. <code>low</code> and use{' '}
+                <code>{window.location.origin}/low</code> as the Xtream Codes
+                server URL for live streams with this active profile. VOD and
+                catch-up are not transcoded by output profiles.
+              </>
+            }
+            placeholder="low"
+            maxLength={64}
+            disabled={isLocked}
+            {...register('xc_path')}
+            error={errors.xc_path?.message}
           />
 
           <Checkbox

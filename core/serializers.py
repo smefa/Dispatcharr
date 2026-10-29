@@ -71,7 +71,7 @@ class StreamProfileSerializer(serializers.ModelSerializer):
 class OutputProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = OutputProfile
-        fields = ["id", "name", "command", "parameters", "is_active", "locked"]
+        fields = ["id", "name", "command", "parameters", "is_active", "locked", "xc_path"]
 
     def update(self, instance, validated_data):
         return _update_profile(self, instance, validated_data)
