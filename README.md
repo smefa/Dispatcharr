@@ -118,6 +118,12 @@ Do not delete these markers unless you intend to rebuild a release.
 Publication does not automatically restart your running container: pull the
 new image and recreate the container to deploy it.
 
+The fork's backend CI uses the upstream `dispatcharr/dispatcharr` base image,
+as does the feature Dockerfile; no fork-specific `:base` image is required.
+Upstream's PR compliance bot runs only in `Dispatcharr/Dispatcharr`, where its
+GitHub App secrets and contribution policies apply. Release monitor integration
+tests run separately without an application image or bot secrets.
+
 #### Upstream image
 
 ```bash
