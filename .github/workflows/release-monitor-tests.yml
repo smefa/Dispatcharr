@@ -5,6 +5,9 @@ on:
     branches: [main, ci/upstream-release-rebuild]
     paths:
       - scripts/prepare_upstream_release.sh
+      - scripts/update_fork_readme.py
+      - docs/xc-output-profiles.md
+      - README.md
       - scripts/tests/test_*.py
       - scripts/release_repair.py
       - .github/workflows/upstream-release-repair.yml
@@ -14,6 +17,9 @@ on:
     branches: [main]
     paths:
       - scripts/prepare_upstream_release.sh
+      - scripts/update_fork_readme.py
+      - docs/xc-output-profiles.md
+      - README.md
       - scripts/tests/test_*.py
       - scripts/release_repair.py
       - .github/workflows/upstream-release-repair.yml

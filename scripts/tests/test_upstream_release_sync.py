@@ -27,6 +27,7 @@ class ReleaseGitFixture(unittest.TestCase):
         }
         self.git(self.root, "init", "-b", "main", str(self.upstream))
         self.commit(self.upstream, "application.txt", "original\n")
+        self.commit(self.upstream, "README.md", "# Upstream Dispatcharr\n")
         self.git(self.upstream, "tag", "v0.33.0")
         self.git(self.root, "clone", "--bare", str(self.upstream), str(self.fork))
         self.git(self.root, "clone", str(self.fork), str(self.source))
@@ -70,6 +71,10 @@ class UpstreamReleaseSyncTests(ReleaseGitFixture):
         self.assertIn("upstream_sha=" + upstream_sha, self.output.read_text())
         self.assertEqual((self.source / "feature.txt").read_text(), "XC output profiles\n")
         self.assertEqual((self.source / "application.txt").read_text(), "new stable release\n")
+        readme = (self.source / "README.md").read_text()
+        self.assertIn("## What this fork adds: XC output-profile links", readme)
+        self.assertTrue(readme.endswith("# Upstream Dispatcharr\n"))
+        self.assertEqual(self.git(self.source, "status", "--porcelain").stdout, "")
         self.assertEqual(
             self.git(self.fork, "rev-parse", "refs/heads/docker").stdout.strip(),
             self.original,
@@ -112,10 +117,33 @@ class UpstreamReleaseSyncTests(ReleaseGitFixture):
     def test_already_merged_release_without_marker_can_be_retried(self):
         self.release()
         self.assertEqual(self.prepare().returncode, 0)
+        prepared = self.git(self.source, "rev-parse", "HEAD").stdout.strip()
         self.output.unlink()
         result = self.prepare()
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertIn("changed=true\n", self.output.read_text())
+        self.assertEqual(self.git(self.source, "rev-parse", "HEAD").stdout.strip(), prepared)
+
+    def test_upstream_readme_updates_are_preserved(self):
+        self.commit(self.upstream, "README.md", "# Updated upstream instructions\n")
+        self.release()
+        result = self.prepare()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        readme = (self.source / "README.md").read_text()
+        self.assertIn("## What this fork adds: XC output-profile links", readme)
+        self.assertTrue(readme.endswith("# Updated upstream instructions\n"))
+
+    def test_invalid_readme_markers_fail_without_success_outputs(self):
+        self.commit(self.source, "README.md", "<!-- xc-profile-fork:start -->\n")
+        self.release()
+        result = self.prepare()
+        self.assertNotEqual(result.returncode, 0)
+        self.assertIn("exactly one pair", result.stderr)
+        self.assertFalse(self.output.exists())
+        self.assertEqual(
+            self.git(self.fork, "rev-parse", "refs/heads/docker").stdout.strip(),
+            self.original,
+        )
 
     def test_invalid_or_prerelease_tags_are_rejected(self):
         for tag in ("v0.34.0-rc1", "../main", "v0.34.0\nchanged=false", "$(false)"):

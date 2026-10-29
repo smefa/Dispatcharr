@@ -24,6 +24,15 @@ if ! git merge --no-ff "$upstream_sha" \
   exit 1
 fi
 
+script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+python3 "$script_dir/update_fork_readme.py" README.md
+git add -- README.md
+if ! git diff --cached --quiet -- README.md; then
+  git commit --only README.md \
+    -m "Refresh fork XC output-profile documentation" \
+    -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+fi
+
 {
   echo "changed=true"
   echo "release_tag=$release_tag"
