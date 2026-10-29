@@ -5,6 +5,7 @@ on:
   push:
     branches:
       - claude/eager-albattani-w0tzvx
+      - claude/serene-darwin-5bi5ca
 
 jobs:
   build:
