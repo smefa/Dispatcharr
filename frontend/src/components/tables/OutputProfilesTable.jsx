@@ -8,7 +8,6 @@ import {
   Box,
   Button,
   Center,
-  CopyButton,
   Flex,
   Paper,
   Select,
@@ -19,7 +18,7 @@ import {
   Tooltip,
   useMantineTheme,
 } from '@mantine/core';
-import { Check, Copy, Eye, EyeOff, SquareMinus, SquarePen, SquarePlus } from 'lucide-react';
+import { Eye, EyeOff, SquareMinus, SquarePen, SquarePlus } from 'lucide-react';
 import { CustomTable, useTable } from './CustomTable';
 import useBrowserStorage from '../../hooks/useBrowserStorage';
 import {
@@ -303,20 +302,6 @@ const OutputProfiles = () => {
           value={xcUrl}
           placeholder="Select a profile"
           style={{ flex: 1 }}
-          rightSection={
-            <CopyButton value={xcUrl}>
-              {({ copied, copy }) => (
-                <ActionIcon
-                  variant="subtle"
-                  size="sm"
-                  disabled={!xcUrl}
-                  onClick={copy}
-                >
-                  {copied ? <Check size={14} /> : <Copy size={14} />}
-                </ActionIcon>
-              )}
-            </CopyButton>
-          }
         />
       </Flex>
 

@@ -1,24 +1,18 @@
 import re
 
-# Lets Xtream Codes apps, which only accept a base URL, select an output
-# profile: http://host:port/output_profile/<id-or-name> is the server URL.
+# Xtream Codes apps only take a base URL, so /output_profile/<id-or-name>/...
+# is rewritten to /... with ?output_profile=<id-or-name>.
 _PREFIX_RE = re.compile(r'^/output_profile/([^/]+)(/.*)$')
 
 
-class OutputProfilePrefixMiddleware:
-    """Strip an /output_profile/<id-or-name> path prefix and expose it as the
-    ?output_profile= query parameter."""
-
-    def __init__(self, get_response):
-        self.get_response = get_response
-
-    def __call__(self, request):
+def output_profile_prefix_middleware(get_response):
+    def middleware(request):
         match = _PREFIX_RE.match(request.path_info)
         if match:
-            profile, rest = match.groups()
-            request.path_info = rest
-            request.path = rest
-            get = request.GET.copy()
-            get['output_profile'] = profile
-            request.GET = get
-        return self.get_response(request)
+            profile, request.path_info = match.groups()
+            request.path = request.path_info
+            request.GET = request.GET.copy()
+            request.GET['output_profile'] = profile
+        return get_response(request)
+
+    return middleware

@@ -187,7 +187,7 @@ ATOMIC_REQUESTS = False
 REQUESTS_TIMEOUT = 30  # Seconds for external API requests
 
 MIDDLEWARE = [
-    "dispatcharr.output_profile_middleware.OutputProfilePrefixMiddleware",
+    "dispatcharr.output_profile_middleware.output_profile_prefix_middleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

@@ -90,7 +90,6 @@ vi.mock('@mantine/core', () => ({
     </button>
   ),
   Center: ({ children }) => <div>{children}</div>,
-  CopyButton: ({ children }) => children({ copied: false, copy: () => {} }),
   Select: () => <div data-testid="xc-profile-select" />,
   TextInput: () => <input data-testid="xc-url" readOnly />,
   Flex: ({ children }) => <div>{children}</div>,
@@ -118,8 +117,6 @@ vi.mock('@mantine/core', () => ({
 
 // ── lucide-react ───────────────────────────────────────────────────────────────
 vi.mock('lucide-react', () => ({
-  Check: () => <svg data-testid="icon-check" />,
-  Copy: () => <svg data-testid="icon-copy" />,
   Eye: () => <svg data-testid="icon-eye" />,
   EyeOff: () => <svg data-testid="icon-eye-off" />,
   SquareMinus: () => <svg data-testid="icon-square-minus" />,

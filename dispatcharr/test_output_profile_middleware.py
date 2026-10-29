@@ -1,6 +1,6 @@
 from django.test import RequestFactory, SimpleTestCase
 
-from dispatcharr.output_profile_middleware import OutputProfilePrefixMiddleware
+from dispatcharr.output_profile_middleware import output_profile_prefix_middleware
 
 
 class OutputProfilePrefixMiddlewareTests(SimpleTestCase):
@@ -13,7 +13,7 @@ class OutputProfilePrefixMiddlewareTests(SimpleTestCase):
             seen['user'] = request.GET.get('username')
             return None
 
-        OutputProfilePrefixMiddleware(view)(RequestFactory().get(path))
+        output_profile_prefix_middleware(view)(RequestFactory().get(path))
         return seen
 
     def test_numeric_prefix_is_stripped(self):
