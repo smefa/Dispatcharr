@@ -25,6 +25,8 @@ ARG BASE_TAG
 # breaks hevc_qsv ("Invalid FrameType:0") on Intel Arc. Upstream v0.33.0 builds the
 # driver from source (~47 MB) and works. Pinned by digest on purpose: do NOT use a
 # floating tag, that is how this regression happened.
+# TODO: remove this stage and the RUN copy below once the base image's own iHD driver
+# encodes hevc_qsv correctly again (check new base images / upstream Dispatcharr).
 FROM --platform=linux/amd64 ghcr.io/dispatcharr/dispatcharr:latest@sha256:96bc548978c68e684677da7895692eeeefb7f0b2edfa38311dac2b702c61d236 AS intel-driver
 
 # --- Final image based on the dynamic base ---
