@@ -90,7 +90,6 @@ vi.mock('@mantine/core', () => ({
     </button>
   ),
   Center: ({ children }) => <div>{children}</div>,
-  Select: () => <div data-testid="xc-profile-select" />,
   TextInput: () => <input data-testid="xc-url" readOnly />,
   Flex: ({ children }) => <div>{children}</div>,
   Paper: ({ children, style }) => <div style={style}>{children}</div>,

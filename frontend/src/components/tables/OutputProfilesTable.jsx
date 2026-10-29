@@ -10,7 +10,6 @@ import {
   Center,
   Flex,
   Paper,
-  Select,
   Stack,
   Switch,
   Text,
@@ -61,7 +60,6 @@ const OutputProfiles = () => {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [profileToDelete, setProfileToDelete] = useState(null);
   const [deleting, setDeleting] = useState(false);
-  const [xcProfileId, setXcProfileId] = useState(null);
 
   const outputProfiles = useOutputProfilesStore((state) => state.profiles);
   const isWarningSuppressed = useWarningsStore((s) => s.isWarningSuppressed);
@@ -184,11 +182,6 @@ const OutputProfiles = () => {
     setProfileModalOpen(false);
   };
 
-  const xcProfile = outputProfiles.find((p) => String(p.id) === xcProfileId);
-  const xcUrl = xcProfile
-    ? `${window.location.origin}/${encodeURIComponent(xcProfile.name)}`
-    : '';
-
   const toggleHideInactive = () => setHideInactive((v) => !v);
 
   const toggleProfileIsActive = async (profile) => {
@@ -281,30 +274,6 @@ const OutputProfiles = () => {
         </Box>
       </Paper>
 
-      <Flex gap="sm" align="flex-end" p={10}>
-        <Select
-          label="Xtream Codes profile"
-          description="Pick a profile to get an Xtream Codes server URL that always uses it"
-          placeholder="Select an output profile"
-          size="xs"
-          data={outputProfiles
-            .filter((p) => p.is_active)
-            .map((p) => ({ value: String(p.id), label: p.name }))}
-          value={xcProfileId}
-          onChange={setXcProfileId}
-          clearable
-          style={{ minWidth: 220 }}
-        />
-        <TextInput
-          label="Server URL"
-          size="xs"
-          readOnly
-          value={xcUrl}
-          placeholder="Select a profile"
-          style={{ flex: 1 }}
-        />
-      </Flex>
-
       <Box style={{ display: 'flex', flexDirection: 'column' }}>
         <Box
           style={{
@@ -319,6 +288,24 @@ const OutputProfiles = () => {
           </div>
         </Box>
       </Box>
+
+      <Stack gap="xs" p={10}>
+        <Text size="sm" fw={500}>
+          Xtream Codes server URLs
+        </Text>
+        {outputProfiles
+          .filter((p) => p.is_active)
+          .map((p) => (
+            <TextInput
+              key={p.id}
+              label={p.name}
+              size="xs"
+              readOnly
+              value={`${window.location.origin}/${encodeURIComponent(p.name)}`}
+              onFocus={(e) => e.target.select()}
+            />
+          ))}
+      </Stack>
 
       <OutputProfileForm
         profile={profile}
