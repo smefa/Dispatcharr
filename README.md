@@ -127,6 +127,45 @@ secrets; they require Git, which is not installed in the application base image.
 The CI bootstrap explicitly initializes PostgreSQL with UTF-8 encoding, even
 when the container's login shell defaults to the `C` locale.
 
+#### Optional Copilot release repair agent
+
+**Agent Repair for Upstream Release** attempts an application repair when a
+scheduled or manually started release rebuild on `main` fails. It uses Copilot
+CLI, not just a static merge script. It reads the failed run's logs, resolves
+application conflicts, and proposes compatibility fixes while preserving the XC
+profile features. Success is not guaranteed.
+
+To enable it, merge the monitor/repair workflows into `main`, enable
+**Allow GitHub Actions to create and approve pull requests** in the repository's
+Actions settings, and add an Actions secret named `COPILOT_REPAIR_TOKEN`. Use a
+fine-grained personal access token belonging to a Copilot subscriber with
+**Copilot Requests** permission only; do not grant repository write permissions.
+The normal Actions token handles attempt markers and PR creation in separate
+jobs. Copilot usage is billed to the subscriber; the agent has a 20-minute timeout and at most
+two autopilot continuations, not a guaranteed monetary spending cap. Never put
+the token in code, logs, or issue comments.
+
+There is **one automatic attempt per release**, recorded in the Git tag
+`xc-profile-repair-attempt/<upstream-tag>` even if the attempt fails, to avoid
+repeated daily AI charges. This is not a successful-publication marker. Do not
+delete attempt tags unless you intend to permit another automatic AI attempt.
+To explicitly retry, run the repair workflow manually with the failed rebuild's
+run ID. Missing release
+context, credentials, or configuration fails visibly without launching an agent.
+
+The agent has file-reading/editing tools only, no shell or GitHub MCP tools,
+and no repository write token. Trusted code packages its edits; a separate job
+checks Git ancestry and rejects agent changes to `.github` before opening a
+**draft PR against `docker`**. Workflow/configuration conflicts require human
+intervention. The agent does not run application tests, merge the PR, publish
+an image, or mark a release successful. Review the proposed changes and run
+frontend/backend tests and a candidate image build before merging; PRs created
+with the Actions token do not automatically trigger ordinary PR workflows.
+After a reviewed repair is merged into `docker`, the next daily rebuild (or
+a manual rebuild) runs the existing publication checks and publishes only if
+they pass. Infrastructure failures may produce no useful repair; inspect the
+repair workflow's logs rather than assuming a draft PR means success.
+
 #### Upstream image
 
 ```bash

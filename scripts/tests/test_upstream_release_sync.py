@@ -8,7 +8,7 @@ import unittest
 SCRIPT = Path(__file__).resolve().parents[1] / "prepare_upstream_release.sh"
 
 
-class UpstreamReleaseSyncTests(unittest.TestCase):
+class ReleaseGitFixture(unittest.TestCase):
     def setUp(self):
         self.temp = tempfile.TemporaryDirectory()
         self.addCleanup(self.temp.cleanup)
@@ -58,6 +58,8 @@ class UpstreamReleaseSyncTests(unittest.TestCase):
             capture_output=True, text=True,
         )
 
+
+class UpstreamReleaseSyncTests(ReleaseGitFixture):
     def test_new_release_preserves_feature_without_publishing(self):
         self.release()
         result = self.prepare()
