@@ -341,7 +341,7 @@ def _resolve_output_profile(request, user):
     param = request.GET.get('output_profile')
     if param:
         # A numeric id, or the profile's Xtream Codes URL ending (xc_path).
-        lookup = {'id': int(param)} if param.isdigit() else {'xc_path__iexact': param}
+        lookup = {'id': int(param)} if param.isdecimal() else {'xc_path__iexact': param}
         return OutputProfile.objects.filter(is_active=True, **lookup).first()
     if user:
         custom = getattr(user, 'custom_properties', None) or {}
