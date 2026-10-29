@@ -98,10 +98,11 @@ jobs:
           set -euo pipefail
           docker run --rm --entrypoint bash \
             --volume "$GITHUB_WORKSPACE/source:/workspace" \
+            --volume "$GITHUB_WORKSPACE/monitor:/monitor:ro" \
             --workdir /workspace \
             --env GITHUB_WORKSPACE=/workspace \
             dispatcharr-xc-profile:release-check \
-            scripts/ci_bootstrap_backend.sh \
+            /monitor/scripts/ci_bootstrap_backend.sh \
             dispatcharr.test_output_profile_middleware \
             core.tests.test_output_profile_scrub \
             core.tests.test_output_profile_subtitle_copy \

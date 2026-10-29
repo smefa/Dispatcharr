@@ -123,6 +123,8 @@ as does the feature Dockerfile; no fork-specific `:base` image is required.
 Upstream's PR compliance bot runs only in `Dispatcharr/Dispatcharr`, where its
 GitHub App secrets and contribution policies apply. Release monitor integration
 tests run separately without an application image or bot secrets.
+The CI bootstrap explicitly initializes PostgreSQL with UTF-8 encoding, even
+when the container's login shell defaults to the `C` locale.
 
 #### Upstream image
 
