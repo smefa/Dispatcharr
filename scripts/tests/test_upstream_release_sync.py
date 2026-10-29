@@ -72,7 +72,7 @@ class UpstreamReleaseSyncTests(ReleaseGitFixture):
         self.assertEqual((self.source / "feature.txt").read_text(), "XC output profiles\n")
         self.assertEqual((self.source / "application.txt").read_text(), "new stable release\n")
         readme = (self.source / "README.md").read_text()
-        self.assertIn("## What this fork adds: XC output-profile links", readme)
+        self.assertIn("# Dispatcharr with XC Output-Profile Links", readme)
         self.assertTrue(readme.endswith("# Upstream Dispatcharr\n"))
         self.assertEqual(self.git(self.source, "status", "--porcelain").stdout, "")
         self.assertEqual(
@@ -130,7 +130,7 @@ class UpstreamReleaseSyncTests(ReleaseGitFixture):
         result = self.prepare()
         self.assertEqual(result.returncode, 0, result.stderr)
         readme = (self.source / "README.md").read_text()
-        self.assertIn("## What this fork adds: XC output-profile links", readme)
+        self.assertIn("# Dispatcharr with XC Output-Profile Links", readme)
         self.assertTrue(readme.endswith("# Updated upstream instructions\n"))
 
     def test_invalid_readme_markers_fail_without_success_outputs(self):

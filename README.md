@@ -1,5 +1,12 @@
 <!-- xc-profile-fork:start -->
-## What this fork adds: XC output-profile links
+# Dispatcharr with XC Output-Profile Links
+
+**This fork adds profile-specific Xtream Codes server URLs and live-stream
+output-profile badges.**
+
+**XC server URL:** `http://YOUR_SERVER:9191/low`
+
+**Docker image:** `ghcr.io/smefa/dispatcharr:xc-profile`
 
 This is an independently maintained Dispatcharr fork, not an official upstream
 image. It keeps **Xtream Codes (XC) output-profile URLs** and **live-stream

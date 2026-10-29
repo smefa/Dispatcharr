@@ -72,6 +72,9 @@ class ForkReadmeTests(unittest.TestCase):
     def test_repository_readme_contains_current_documentation(self):
         readme = SCRIPT.parents[1] / "README.md"
         original = readme.read_text(encoding="utf-8")
+        self.assertTrue(original.startswith(
+            readme_sync.START + "\n# Dispatcharr with XC Output-Profile Links\n"
+        ))
         self.readme.write_text(original, encoding="utf-8")
         readme_sync.update_readme(self.readme)
         self.assertEqual(self.readme.read_text(encoding="utf-8"), original)
