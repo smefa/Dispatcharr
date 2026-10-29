@@ -93,6 +93,33 @@ Build custom integrations using Dispatcharr's robust plugin system. Automate tas
 
 ### 🐳 Quick Start with Docker (Recommended)
 
+#### This fork's automatically updated XC profile image
+
+Use `ghcr.io/smefa/dispatcharr:xc-profile` for this fork's XC output profile
+URLs and live-stream output profile indicators. The `docker` branch contains
+the patched application; `main` hosts the release monitor.
+
+The **Rebuild XC Profile on Upstream Release** GitHub Actions workflow checks
+the latest stable release of `Dispatcharr/Dispatcharr` every six hours
+(00:23, 06:23, 12:23 and 18:23 UTC; GitHub may delay scheduled runs). It can
+also be started manually from the Actions tab. Prereleases are not selected.
+For a new release, it merges the upstream tag into `docker`, runs the frontend
+tests, builds the AMD64 image and runs the output profile backend tests before
+publishing `:xc-profile` and a versioned tag such as `:xc-profile-v0.34.0`.
+This preserves the existing image's AMD64 architecture.
+
+Merge conflicts or failed tests/builds leave the current image untouched.
+Inspect a failed run's logs and resolve conflicts on `docker` if necessary;
+the next check retries releases without a successful publication marker.
+Only after publication does the workflow create
+`xc-profile-upstream/<upstream-tag>` in Git. The initial `v0.33.0` marker
+records the existing successfully built feature image; it does not rebuild it.
+Do not delete these markers unless you intend to rebuild a release.
+Publication does not automatically restart your running container: pull the
+new image and recreate the container to deploy it.
+
+#### Upstream image
+
 ```bash
 docker pull ghcr.io/dispatcharr/dispatcharr:latest
 docker run -d \

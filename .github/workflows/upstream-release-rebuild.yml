@@ -1,0 +1,137 @@
+name: Rebuild XC Profile on Upstream Release
+
+on:
+  schedule:
+    - cron: '23 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: xc-profile-upstream-release
+  cancel-in-progress: false
+
+jobs:
+  rebuild:
+    if: github.repository == 'smefa/Dispatcharr'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    permissions:
+      contents: write
+      packages: write
+    steps:
+      - name: Checkout release monitor
+        uses: actions/checkout@v7
+        with:
+          ref: main
+          path: monitor
+
+      - name: Test release preparation
+        run: python -m unittest discover -s monitor/tests -p test_upstream_release_sync.py -v
+
+      - name: Checkout patched application
+        uses: actions/checkout@v7
+        with:
+          ref: docker
+          fetch-depth: 0
+          path: source
+
+      - name: Check latest stable upstream release
+        id: release
+        working-directory: source
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          RELEASE_TAG="$(gh api repos/Dispatcharr/Dispatcharr/releases/latest --jq '.tag_name')"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add upstream https://github.com/Dispatcharr/Dispatcharr.git
+          bash ../monitor/scripts/prepare_upstream_release.sh "$RELEASE_TAG"
+
+      - name: Set up Node.js
+        if: steps.release.outputs.changed == 'true'
+        uses: actions/setup-node@v7
+        with:
+          node-version: '24'
+          cache: npm
+          cache-dependency-path: source/frontend/package-lock.json
+
+      - name: Run frontend tests
+        if: steps.release.outputs.changed == 'true'
+        working-directory: source/frontend
+        env:
+          CI: 'true'
+        run: npm ci && npm test
+
+      - name: Set up Docker Buildx
+        if: steps.release.outputs.changed == 'true'
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to GitHub Container Registry
+        if: steps.release.outputs.changed == 'true'
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build candidate without publishing
+        if: steps.release.outputs.changed == 'true'
+        uses: docker/build-push-action@v7
+        with:
+          context: source
+          file: source/docker/Dockerfile
+          platforms: linux/amd64
+          load: true
+          push: false
+          tags: dispatcharr-xc-profile:release-check
+          labels: |
+            org.opencontainers.image.source=https://github.com/${{ github.repository }}
+            org.opencontainers.image.version=${{ steps.release.outputs.release_tag }}
+            io.dispatcharr.upstream.revision=${{ steps.release.outputs.upstream_sha }}
+
+      - name: Check candidate backend and output profiles
+        if: steps.release.outputs.changed == 'true'
+        run: |
+          set -euo pipefail
+          docker run --rm --entrypoint bash \
+            --volume "$GITHUB_WORKSPACE/source:/workspace" \
+            --workdir /workspace \
+            --env GITHUB_WORKSPACE=/workspace \
+            dispatcharr-xc-profile:release-check \
+            scripts/ci_bootstrap_backend.sh \
+            dispatcharr.test_output_profile_middleware \
+            core.tests.test_output_profile_scrub \
+            core.tests.test_output_profile_subtitle_copy \
+            --noinput -v2
+
+      - name: Publish image and record successful release
+        if: steps.release.outputs.changed == 'true'
+        working-directory: source
+        env:
+          RELEASE_TAG: ${{ steps.release.outputs.release_tag }}
+        run: |
+          set -euo pipefail
+          IMAGE="ghcr.io/${GITHUB_REPOSITORY,,}"
+          docker tag dispatcharr-xc-profile:release-check "$IMAGE:xc-profile-$RELEASE_TAG"
+          docker push "$IMAGE:xc-profile-$RELEASE_TAG"
+          # A concurrent change to docker must not be overwritten.
+          git push origin HEAD:refs/heads/docker
+          docker tag dispatcharr-xc-profile:release-check "$IMAGE:xc-profile"
+          docker push "$IMAGE:xc-profile"
+          # Failed builds/publications have no marker and will be retried.
+          git tag -a "xc-profile-upstream/$RELEASE_TAG" \
+            -m "Published XC profile image for upstream $RELEASE_TAG" \
+            -m "Co-authored-by: Copilot <223556219+Copilot@users.noreply.github.com>"
+          git push origin "refs/tags/xc-profile-upstream/$RELEASE_TAG"
+          echo "Published \`$IMAGE:xc-profile\` and \`$IMAGE:xc-profile-$RELEASE_TAG\`." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report no new release
+        if: steps.release.outputs.changed == 'false'
+        run: echo "No new upstream stable release needs rebuilding." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Report update failure
+        if: failure()
+        run: echo "::error::The release update did not complete. Check this run's logs; the next scheduled check will retry any release without a success marker."
