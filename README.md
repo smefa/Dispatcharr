@@ -100,8 +100,8 @@ URLs and live-stream output profile indicators. The `docker` branch contains
 the patched application; `main` hosts the release monitor.
 
 The **Rebuild XC Profile on Upstream Release** GitHub Actions workflow checks
-the latest stable release of `Dispatcharr/Dispatcharr` every six hours
-(00:23, 06:23, 12:23 and 18:23 UTC; GitHub may delay scheduled runs). It can
+the latest stable release of `Dispatcharr/Dispatcharr` once daily
+(06:23 UTC; GitHub may delay scheduled runs). It can
 also be started manually from the Actions tab. Prereleases are not selected.
 For a new release, it merges the upstream tag into `docker`, runs the frontend
 tests, builds the AMD64 image and runs the output profile backend tests before
