@@ -17,15 +17,20 @@ class OutputProfilePrefixMiddlewareTests(SimpleTestCase):
         return seen
 
     def test_numeric_prefix_is_stripped(self):
-        seen = self._run('/output_profile/2525/player_api.php?username=u')
+        seen = self._run('/2525/player_api.php?username=u')
         self.assertEqual(seen['path'], '/player_api.php')
         self.assertEqual(seen['profile'], '2525')
         self.assertEqual(seen['user'], 'u')
 
     def test_name_prefix_is_stripped(self):
-        seen = self._run('/output_profile/low/live/u/p/1.ts')
+        seen = self._run('/low/live/u/p/1.ts')
         self.assertEqual(seen['path'], '/live/u/p/1.ts')
         self.assertEqual(seen['profile'], 'low')
+
+    def test_non_xc_paths_untouched(self):
+        seen = self._run('/api/channels/')
+        self.assertEqual(seen['path'], '/api/channels/')
+        self.assertIsNone(seen['profile'])
 
     def test_other_paths_untouched(self):
         seen = self._run('/player_api.php')

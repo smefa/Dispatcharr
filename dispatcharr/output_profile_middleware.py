@@ -1,8 +1,10 @@
 import re
 
-# Xtream Codes apps only take a base URL, so /output_profile/<id-or-name>/...
-# is rewritten to /... with ?output_profile=<id-or-name>.
-_PREFIX_RE = re.compile(r'^/output_profile/([^/]+)(/.*)$')
+# Xtream Codes apps only take a base URL, so /<profile>/player_api.php (or any
+# other XC path) is rewritten to /player_api.php with ?output_profile=<profile>.
+_PREFIX_RE = re.compile(
+    r'^/([^/]+)(/(?:player_api\.php|get\.php|xmltv\.php|live/|movie/|series/).*)$'
+)
 
 
 def output_profile_prefix_middleware(get_response):

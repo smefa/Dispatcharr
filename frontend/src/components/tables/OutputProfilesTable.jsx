@@ -186,7 +186,7 @@ const OutputProfiles = () => {
 
   const xcProfile = outputProfiles.find((p) => String(p.id) === xcProfileId);
   const xcUrl = xcProfile
-    ? `${window.location.origin}/output_profile/${encodeURIComponent(xcProfile.name)}`
+    ? `${window.location.origin}/${encodeURIComponent(xcProfile.name)}`
     : '';
 
   const toggleHideInactive = () => setHideInactive((v) => !v);
