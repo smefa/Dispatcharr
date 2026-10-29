@@ -196,6 +196,7 @@ import usePlaylistsStore from '../../../store/playlists.jsx';
 import useSettingsStore from '../../../store/settings.jsx';
 import useVideoStore from '../../../store/useVideoStore';
 import useUsersStore from '../../../store/users.jsx';
+import useOutputProfilesStore from '../../../store/outputProfiles.jsx';
 import { showNotification } from '../../../utils/notificationUtils.js';
 import {
   getChannelStreams,
@@ -294,6 +295,9 @@ const setupStores = () => {
   vi.mocked(useUsersStore).mockImplementation((selector) =>
     selector(mockUsersState)
   );
+  vi.mocked(useOutputProfilesStore).mockImplementation((selector) =>
+    selector({ profiles: [] })
+  );
 };
 
 // ── Tests ─────────────────────────────────────────────────────────────────────
@@ -342,6 +346,44 @@ describe('StreamConnectionCard', () => {
   // ── Basic rendering ────────────────────────────────────────────────────────
 
   describe('rendering', () => {
+    it('shows distinct output profiles used by clients on this channel', async () => {
+      vi.mocked(useOutputProfilesStore).mockImplementation((selector) =>
+        selector({
+          profiles: [
+            { id: 7, name: 'Low bandwidth' },
+            { id: 8, name: 'Audio normalized' },
+            { id: 9, name: 'Other channel only' },
+          ],
+        })
+      );
+      const client = makeClients()[0];
+      render(
+        <StreamConnectionCard
+          {...defaultProps({
+            clients: [
+              { ...client, client_id: 'one', output_profile_id: 7 },
+              { ...client, client_id: 'two', output_profile_id: 7 },
+              { ...client, client_id: 'three', output_profile_id: 8 },
+              { ...client, client_id: 'unknown', output_profile_id: 999 },
+              { ...client, client_id: 'passthrough' },
+              {
+                ...client,
+                client_id: 'other-channel',
+                channel: { channel_id: 'other' },
+                output_profile_id: 9,
+              },
+            ],
+          })}
+        />
+      );
+      await waitFor(() => {
+        expect(screen.getAllByText('Low bandwidth')).toHaveLength(1);
+        expect(screen.getAllByText('Audio normalized')).toHaveLength(1);
+      });
+      expect(screen.getByText('Main M3U')).toBeInTheDocument();
+      expect(screen.queryByText('Other channel only')).not.toBeInTheDocument();
+    });
+
     it('renders the channel name', () => {
       render(<StreamConnectionCard {...defaultProps()} />);
       expect(screen.getByText('Test Channel')).toBeInTheDocument();
