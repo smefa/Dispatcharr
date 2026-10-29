@@ -354,7 +354,7 @@ describe('StreamConnectionCard', () => {
 
     it('renders the M3U profile name', () => {
       render(<StreamConnectionCard {...defaultProps()} />);
-      expect(screen.getByText('Main M3U')).toBeInTheDocument();
+      expect(screen.getAllByText('Main M3U').length).toBeGreaterThan(0);
     });
 
     it('renders the uptime via toFriendlyDuration', () => {
@@ -756,7 +756,7 @@ describe('StreamConnectionCard', () => {
         target: { value: '10' },
       });
       await waitFor(() => {
-        expect(screen.getByText('Updated M3U')).toBeInTheDocument();
+        expect(screen.getAllByText('Updated M3U').length).toBeGreaterThan(0);
       });
     });
   });
@@ -881,12 +881,12 @@ describe('StreamConnectionCard', () => {
           })}
         />
       );
-      expect(screen.getByText('Fallback M3U')).toBeInTheDocument();
+      expect(screen.getAllByText('Fallback M3U').length).toBeGreaterThan(0);
     });
 
     it('updates currentM3UProfile when channel m3u_profile prop changes', async () => {
       const { rerender } = render(<StreamConnectionCard {...defaultProps()} />);
-      expect(screen.getByText('Main M3U')).toBeInTheDocument();
+      expect(screen.getAllByText('Main M3U').length).toBeGreaterThan(0);
 
       rerender(
         <StreamConnectionCard
@@ -896,7 +896,7 @@ describe('StreamConnectionCard', () => {
         />
       );
       await waitFor(() => {
-        expect(screen.getByText('New M3U')).toBeInTheDocument();
+        expect(screen.getAllByText('New M3U').length).toBeGreaterThan(0);
       });
     });
   });

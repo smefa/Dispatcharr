@@ -497,6 +497,7 @@ const StreamConnectionCard = ({
     channel.m3u_profile?.name ||
     channel.m3u_profile_name ||
     'Unknown M3U Profile';
+  const hasM3UProfile = m3uProfileName !== 'Unknown M3U Profile';
 
   // Create select options for available streams
   const streamOptions = getStreamOptions(availableStreams, m3uAccountsMap);
@@ -698,6 +699,13 @@ const StreamConnectionCard = ({
             <Tooltip label="Stream type">
               <Badge size="sm" variant="light" color="cyan">
                 {channel.stream_type.toUpperCase()}
+              </Badge>
+            </Tooltip>
+          )}
+          {hasM3UProfile && (
+            <Tooltip label="M3U profile in use">
+              <Badge size="sm" variant="light" color="grape">
+                {m3uProfileName}
               </Badge>
             </Tooltip>
           )}
