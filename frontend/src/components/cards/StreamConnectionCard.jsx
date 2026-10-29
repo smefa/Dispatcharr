@@ -497,7 +497,18 @@ const StreamConnectionCard = ({
     channel.m3u_profile?.name ||
     channel.m3u_profile_name ||
     'Unknown M3U Profile';
-  const hasM3UProfile = m3uProfileName !== 'Unknown M3U Profile';
+
+  // Distinct output profiles in use by this card's clients
+  const outputProfiles = useOutputProfilesStore((s) => s.profiles);
+  const activeOutputProfileNames = [
+    ...new Set(
+      data
+        .map((c) => c.output_profile_id)
+        .filter(Boolean)
+        .map((id) => outputProfiles.find((p) => p.id === id)?.name)
+        .filter(Boolean)
+    ),
+  ];
 
   // Create select options for available streams
   const streamOptions = getStreamOptions(availableStreams, m3uAccountsMap);
@@ -702,13 +713,13 @@ const StreamConnectionCard = ({
               </Badge>
             </Tooltip>
           )}
-          {hasM3UProfile && (
-            <Tooltip label="M3U profile in use">
+          {activeOutputProfileNames.map((name) => (
+            <Tooltip key={name} label="Output profile">
               <Badge size="sm" variant="light" color="grape">
-                {m3uProfileName}
+                {name}
               </Badge>
             </Tooltip>
-          )}
+          ))}
           {channel.ffmpeg_speed && (
             <Tooltip
               label={`Current Speed: ${parseFloat(channel.ffmpeg_speed).toFixed(2)}x`}
