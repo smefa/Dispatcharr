@@ -5,7 +5,7 @@ import tempfile
 import unittest
 
 
-SCRIPT = Path(__file__).resolve().parents[1] / "scripts/prepare_upstream_release.sh"
+SCRIPT = Path(__file__).resolve().parents[1] / "prepare_upstream_release.sh"
 
 
 class UpstreamReleaseSyncTests(unittest.TestCase):

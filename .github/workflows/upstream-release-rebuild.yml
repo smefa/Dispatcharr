@@ -28,7 +28,7 @@ jobs:
           path: monitor
 
       - name: Test release preparation
-        run: python -m unittest discover -s monitor/tests -p test_upstream_release_sync.py -v
+        run: python -m unittest discover -s monitor/scripts/tests -p test_upstream_release_sync.py -v
 
       - name: Checkout patched application
         uses: actions/checkout@v7

@@ -5,14 +5,14 @@ on:
     branches: [main, ci/upstream-release-rebuild]
     paths:
       - scripts/prepare_upstream_release.sh
-      - tests/test_upstream_release_sync.py
+      - scripts/tests/test_upstream_release_sync.py
       - .github/workflows/upstream-release-rebuild.yml
       - .github/workflows/release-monitor-tests.yml
   pull_request:
     branches: [main]
     paths:
       - scripts/prepare_upstream_release.sh
-      - tests/test_upstream_release_sync.py
+      - scripts/tests/test_upstream_release_sync.py
       - .github/workflows/upstream-release-rebuild.yml
       - .github/workflows/release-monitor-tests.yml
   workflow_dispatch:
@@ -26,6 +26,6 @@ jobs:
     steps:
       - uses: actions/checkout@v7
       - name: Run release monitor integration tests
-        run: python -m unittest discover -s tests -p test_upstream_release_sync.py -v
+        run: python -m unittest discover -s scripts/tests -p test_upstream_release_sync.py -v
       - name: Check release preparation shell syntax
         run: bash -n scripts/prepare_upstream_release.sh
