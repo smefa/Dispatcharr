@@ -141,6 +141,7 @@ jobs:
             dispatcharr.test_output_profile_middleware \
             core.tests.test_output_profile_scrub \
             core.tests.test_output_profile_subtitle_copy \
+            core.tests.test_xc_output_profile_links \
             --noinput -v2
 
       - name: Publish image and record successful release
