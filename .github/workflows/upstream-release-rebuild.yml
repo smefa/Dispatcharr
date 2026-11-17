@@ -3,7 +3,7 @@ name: Rebuild XC Profile on Upstream Release
 on:
   schedule:
     # Upstream cannot notify this fork, so poll; the check job is cheap.
-    - cron: '17 * * * *'
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:
