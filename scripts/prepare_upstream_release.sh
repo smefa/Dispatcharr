@@ -25,6 +25,19 @@ if ! git merge --no-ff "$upstream_sha" \
 fi
 
 script_dir="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+
+# Upstream migrations added next to the fork's own (e.g. core xc_path) leave
+# two leaf nodes; Django then refuses to migrate. Join them with merge
+# migrations so users of the previous image upgrade cleanly.
+merge_output="$(python3 "$script_dir/merge_migration_leaves.py" . "$release_tag")"
+if [[ -n "$merge_output" ]]; then
+  mapfile -t merge_migrations <<< "$merge_output"
+  git add -- "${merge_migrations[@]}"
+  git commit --only "${merge_migrations[@]}" \
+    -m "Merge fork and upstream $release_tag migrations" \
+    -m "Co-authored-by: Claude Opus 5.5 <noreply@anthropic.com>"
+fi
+
 python3 "$script_dir/update_fork_readme.py" README.md
 git add -- README.md
 if ! git diff --cached --quiet -- README.md; then
