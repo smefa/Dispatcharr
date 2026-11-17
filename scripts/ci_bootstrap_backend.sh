@@ -42,6 +42,10 @@ echo "Setting up CI user and PostgreSQL data directory..."
 mkdir -p "${POSTGRES_DIR}"
 chown "${PUID}:${PGID}" "${POSTGRES_DIR}"
 chmod 700 "${POSTGRES_DIR}"
+# Login shells can discard the runner's UTF-8 locale; make CI's encoding explicit.
+if [ ! -f "${POSTGRES_DIR}/PG_VERSION" ]; then
+  su - "$POSTGRES_USER" -c "$PG_BINDIR/initdb --encoding=UTF8 -D ${POSTGRES_DIR}"
+fi
 # shellcheck source=docker/init/02-postgres.sh
 . "${REPO_ROOT}/docker/init/02-postgres.sh"
 
