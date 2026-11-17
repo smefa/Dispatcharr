@@ -25,7 +25,7 @@ jobs:
         id: latest
         env:
           GH_TOKEN: ${{ github.token }}
-          HAS_PUSH_TOKEN: ${{ secrets.FORK_PUSH_TOKEN != '' }}
+          HAS_PUSH_TOKEN: ${{ (secrets.FORK_PUSH_TOKEN || secrets.COPILOT_REPAIR_TOKEN) != '' }}
         run: |
           set -euo pipefail
           TAG="$(gh api repos/Dispatcharr/Dispatcharr/releases/latest --jq '.tag_name')"
@@ -38,7 +38,7 @@ jobs:
           fi
           if [[ "$HAS_PUSH_TOKEN" != true ]]; then
             # GITHUB_TOKEN cannot push upstream's .github/workflows changes.
-            echo "::error::Add a FORK_PUSH_TOKEN secret (fine-grained PAT for this repo: Contents and Workflows read/write)."
+            echo "::error::Add a FORK_PUSH_TOKEN (or COPILOT_REPAIR_TOKEN) secret (fine-grained PAT for this repo: Contents and Workflows read/write)."
             exit 1
           fi
           echo "pending=true" >> "$GITHUB_OUTPUT"
@@ -68,7 +68,7 @@ jobs:
           ref: docker
           fetch-depth: 0
           path: source
-          token: ${{ secrets.FORK_PUSH_TOKEN }}
+          token: ${{ secrets.FORK_PUSH_TOKEN || secrets.COPILOT_REPAIR_TOKEN }}
 
       - name: Check latest stable upstream release
         id: release
