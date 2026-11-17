@@ -180,6 +180,8 @@ jobs:
           ref: docker
           path: source
           fetch-depth: 0
+          # GITHUB_TOKEN cannot push upstream's .github/workflows changes.
+          token: ${{ secrets.FORK_PUSH_TOKEN || secrets.COPILOT_REPAIR_TOKEN }}
       - uses: actions/download-artifact@v8
         with:
           name: proposed-release-repair

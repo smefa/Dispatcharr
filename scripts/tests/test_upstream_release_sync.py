@@ -145,6 +145,28 @@ class UpstreamReleaseSyncTests(ReleaseGitFixture):
             self.original,
         )
 
+    def test_conflicting_migrations_get_a_merge_migration(self):
+        migrations = "core/migrations/"
+        body = ("from django.db import migrations\n\n\n"
+                "class Migration(migrations.Migration):\n"
+                "    dependencies = [{}]\n    operations = []\n")
+        for repository in (self.upstream, self.source):
+            (repository / migrations).mkdir(parents=True)
+        self.commit(self.upstream, migrations + "0001_initial.py", body.format(""))
+        self.git(self.source, "fetch", "upstream", "main")
+        self.git(self.source, "merge", "--no-edit", "upstream/main")
+        self.commit(self.source, migrations + "0002_fork.py",
+                    body.format("('core', '0001_initial')"))
+        self.commit(self.upstream, migrations + "0002_upstream.py",
+                    body.format("('core', '0001_initial')"))
+        self.release()
+        result = self.prepare()
+        self.assertEqual(result.returncode, 0, result.stderr)
+        merge = self.source / migrations / "0003_merge_upstream_0_34_0.py"
+        self.assertIn("('core', '0002_fork')", merge.read_text())
+        self.assertIn("('core', '0002_upstream')", merge.read_text())
+        self.assertEqual(self.git(self.source, "status", "--porcelain").stdout, "")
+
     def test_invalid_or_prerelease_tags_are_rejected(self):
         for tag in ("v0.34.0-rc1", "../main", "v0.34.0\nchanged=false", "$(false)"):
             with self.subTest(tag=tag):
