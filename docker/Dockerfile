@@ -35,12 +35,21 @@ ENV VIRTUAL_ENV=/dispatcharrpy
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 WORKDIR /app
 
-# Replace Ubuntu's iHD driver with the known-good upstream build (see intel-driver stage).
-# Nothing after this point may reinstall intel-media-va-driver.
+# Replace every iHD driver in the base with the known-good upstream build (see
+# intel-driver stage). LIBVA_DRIVERS_PATH searches /usr/local first, so a base that
+# ships its own driver there silently shadows one installed only under /usr/lib.
+# The build fails if any other iHD driver is left. Nothing after this point may
+# reinstall intel-media-va-driver.
 ARG TARGETARCH
 RUN --mount=type=bind,from=intel-driver,source=/usr/local/lib/x86_64-linux-gnu/dri,target=/mnt/intel-dri \
     if [ "$TARGETARCH" = "amd64" ]; then \
-    install -D -m 0755 /mnt/intel-dri/iHD_drv_video.so /usr/lib/x86_64-linux-gnu/dri/iHD_drv_video.so; \
+    set -e; \
+    for d in /usr/local/lib/x86_64-linux-gnu/dri /usr/lib/x86_64-linux-gnu/dri; do \
+    install -D -m 0755 /mnt/intel-dri/iHD_drv_video.so "$d/iHD_drv_video.so"; \
+    done; \
+    unpinned="$(find / -xdev -name 'iHD_drv_video.so*' -type f \
+    ! -exec cmp -s {} /mnt/intel-dri/iHD_drv_video.so \; -print)"; \
+    if [ -n "$unpinned" ]; then echo "Unpinned iHD driver(s): $unpinned" >&2; exit 1; fi; \
     fi
 
 # Copy application code
