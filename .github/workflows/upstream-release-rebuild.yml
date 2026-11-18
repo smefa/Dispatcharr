@@ -3,7 +3,7 @@ name: Rebuild XC Profile on Upstream Release
 on:
   schedule:
     # Upstream cannot notify this fork, so poll; the check job is cheap.
-    - cron: '17 * * * *'
+    - cron: '17 6 * * *'
   workflow_dispatch:
 
 permissions:
@@ -141,6 +141,7 @@ jobs:
             dispatcharr.test_output_profile_middleware \
             core.tests.test_output_profile_scrub \
             core.tests.test_output_profile_subtitle_copy \
+            core.tests.test_xc_output_profile_links \
             --noinput -v2
 
       - name: Publish image and record successful release
